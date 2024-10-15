@@ -26,19 +26,31 @@ const server = http.createServer(async (req, res) => {
     }
 
     const imagePath = getImagePath(httpCode);
-
-    switch (req.method) {
-        case 'GET':
-            try {
-                const data = await fs.readFile(filePath);
-                res.writeHead(200, { 'Content-Type': 'image/jpeg' });
-                res.end(data);
-            } catch (error) {
-                console.log(error)
-            }
-            break;
-    
+    try {
+        if (req.method === 'GET') {
+            const image = await fs.readFile(imagePath);
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' }).end(image);
+        } else if (req.method === 'PUT') {
+            const data = [];
+            req.on('data', chunk => data.push(chunk));
+            req.on('end', async () => {
+                await fs.writeFile(imagePath, Buffer.concat(data));
+                res.writeHead(201).end('Створено');
+            });
+        } else if (req.method === 'DELETE') {
+            await fs.unlink(imagePath);
+            res.writeHead(200).end('Видалено');
+        } else {
+            res.writeHead(405).end('Метод не дозволений');
+        }
+    } catch (error) {
+        if (err.code === 'ENOENT') {
+            res.writeHead(404).end('Зображення не знайдено');
+        } else {
+            res.writeHead(500).end('Внутрішня помилка сервера'); 
+        }
     }
+    
 
 
 })
