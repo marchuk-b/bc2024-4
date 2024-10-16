@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon index.js --host localhost --port 5000 --cache /cache_files"
+    "server": "nodemon index.js --host localhost --port 5000 --cache ./cache_files"
   },
   "author": "",
   "license": "ISC",
